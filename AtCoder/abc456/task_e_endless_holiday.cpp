@@ -25,6 +25,7 @@ int main() {
     string hi;
     bool ans;
     while (t--) {
+        ans = false;
         cin >> n >> m;
         vector<vector<int>> g(n, vector<int>());
         vector<unordered_set<int>> gw(n, unordered_set<int>());
@@ -48,7 +49,16 @@ int main() {
             int nd = vis.top().nd;
             vis.pop();
             if (nd > w) {
-               gw[ic].insert(nc);
+                gw[ic].insert(nc);
+                if (ic == nc || gw[nc].contains(nc) || gw[nc].contains(ic)) {
+                    ans = true;
+                    while (!vis.empty())
+                        vis.pop();
+                    for (i = 0; i < n; i++)
+                        gw[i].clear();
+                    gw.clear();
+                    break;
+                }
             }
             else {
                 for (j = 0; j < g[nc].size(); j++)
@@ -59,7 +69,11 @@ int main() {
         for (i = 0; i < n; i++)
             g[i].clear();
         g.clear();
-        ans = false;
+        if (ans) {
+            h.clear();
+            cout << "Yes" << endl;
+            continue;
+        }
         unordered_set<int> ec;
         vector<unordered_set<int>> rin(n, unordered_set<int>());
         for (i = 0; i < gw.size(); i++)
@@ -67,9 +81,9 @@ int main() {
                 rin[des].insert(i);
         unordered_set<int> new_orphan;
         for (i = 0; i < n; i++)
-            if(gw[i].size() == 0)
+            if (gw[i].size() == 0)
                 ec.insert(i);
-        while(!ec.empty()) {
+        while (!ec.empty()) {
             for (int src : ec) {
                 for (int des : rin[src]) {
                     if (gw[des].erase(src) > 0 && gw[des].size() == 0)
@@ -82,12 +96,14 @@ int main() {
                 ec.insert(src);
             new_orphan.clear();
         }
-        ans = false;
         for (i = 0; i < n; i++)
             if (gw[i].size() > 0) {
                 ans = true;
                 break;
             }
+        for (i = 0; i < n; i++)
+            gw[i].clear();
+        gw.clear();
         cout << (ans ? "Yes" : "No") << endl;
         h.clear();
     }
